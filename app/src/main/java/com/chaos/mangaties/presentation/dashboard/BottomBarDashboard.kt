@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,8 @@ fun BottomBarDashboard(
     onFavouriteMangaClick: (String) -> Unit,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
-    var selectedTab by remember { mutableStateOf(BottomNavItem.Home) }
+    // Save the selected tab state across configuration changes and navigation back
+    var selectedTab by rememberSaveable { mutableStateOf(BottomNavItem.Home) }
 
     Scaffold(
         bottomBar = {

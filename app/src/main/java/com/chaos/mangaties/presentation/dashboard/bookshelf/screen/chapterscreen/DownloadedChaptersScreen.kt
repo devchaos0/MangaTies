@@ -58,7 +58,14 @@ fun DownloadedChaptersScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (uiState.chapters.isEmpty()) {
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (uiState.chapters.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center

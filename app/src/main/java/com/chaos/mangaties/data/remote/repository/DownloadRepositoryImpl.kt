@@ -6,12 +6,17 @@ import com.chaos.mangaties.domain.model.manga.manga.DownloadedChapter
 import com.chaos.mangaties.domain.model.manga.manga.DownloadedManga
 import com.chaos.mangaties.domain.repository.manga.DownloadRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -45,6 +50,10 @@ class DownloadRepositoryImpl @Inject constructor(
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .dispatcher(Dispatcher().apply {
+            maxRequests = 20
+            maxRequestsPerHost = 10
+        })
         .build()
 
     private val _downloadedMangas = MutableStateFlow<List<DownloadedManga>>(emptyList())
@@ -156,7 +165,7 @@ class DownloadRepositoryImpl @Inject constructor(
                 val metadata = MangaMetadata(
                     mangaId = mangaId,
                     mangaTitle = mangaTitle,
-                    coverFileName = null // You might need to pass this or resolve it
+                    coverFileName = null 
                 )
                 mangaMetadataFile.writeText(json.encodeToString(metadata))
             }
@@ -164,60 +173,31 @@ class DownloadRepositoryImpl @Inject constructor(
             val chapterDir = File(mangaDir, chapterId)
             if (!chapterDir.exists()) chapterDir.mkdirs()
 
-            val downloadedPages = mutableListOf<String>()
-            var totalBytes = 0L
-            var downloadedBytes = 0L
+            coroutineScope {
+                pageUrls.mapIndexed { index, imageUrl ->
+                    async {
+                        val fileName = imageUrl.substringAfterLast("/")
+                        val file = File(chapterDir, fileName)
 
-            pageUrls.forEach { url ->
-                try {
-                    val request = Request.Builder().url(url).head().build()
-                    client.newCall(request).execute().use { response ->
-                        if (response.isSuccessful){
-                            val contentLength = response.body?.contentLength() ?: 0
-                            if (contentLength > 0) totalBytes += contentLength
-                        }
-                    }
-                } catch (e: Exception){
-                    totalBytes += 500000
-                }
-            }
+                        if (!file.exists()) {
+                            val request = Request.Builder()
+                                .url(imageUrl)
+                                .build()
 
-            pageUrls.forEachIndexed { index, imageUrl ->
-                val fileName = imageUrl.substringAfterLast("/")
-                val file = File(chapterDir, fileName)
-
-                if (!file.exists()){
-                    val request = Request.Builder()
-                        .url(imageUrl)
-                        .build()
-
-                    client.newCall(request).execute().use { response ->
-                        if (response.isSuccessful){
-                            response.body?.let { body ->
-                                body.byteStream().use { inputStream ->
-                                    FileOutputStream(file).use { outputStream ->
-                                        val buffer = ByteArray(8192)
-                                        var bytesRead: Int
-
-                                        while (inputStream.read(buffer).also { bytesRead = it } != -1 ){
-
-                                            outputStream.write(buffer, 0, bytesRead)
-
-                                            downloadedBytes += bytesRead
-                                            if (totalBytes > 0){
-                                                val progress = downloadedBytes.toFloat() / totalBytes
-                                                onProgress(progress.coerceIn(0f, 1f))
-                                            }
+                            client.newCall(request).execute().use { response ->
+                                if (response.isSuccessful) {
+                                    response.body?.byteStream()?.use { inputStream ->
+                                        FileOutputStream(file).use { outputStream ->
+                                            inputStream.copyTo(outputStream)
                                         }
                                     }
+                                } else {
+                                    throw Exception("Failed to download page: ${response.code}")
                                 }
                             }
-                        } else {
-                            return@withContext Result.failure(Exception("Failed to download: ${response.code}"))
                         }
                     }
-                }
-                downloadedPages.add(file.absolutePath)
+                }.awaitAll()
             }
 
             val metadata = ChapterMetadata(
