@@ -54,11 +54,11 @@ data class RelationshipDto(
 
 @Serializable
 data class CoverArtAttributesDto(
-    val description: String?,
-    val volume: String?,
-    val fileName: String?,
-    val locale: String?,
-    val createdAt: String,
-    val updatedAt: String,
-    val version: Int
+    val description: String? = null,
+    val volume: String? = null,
+    val fileName: String? = null,
+    val locale: String? = null,
+    val createdAt: String? = null,
+    val updatedAt: String? = null,
+    val version: Int? = null
 )

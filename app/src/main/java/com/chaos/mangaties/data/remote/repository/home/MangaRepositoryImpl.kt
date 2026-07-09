@@ -19,7 +19,8 @@ class MangaRepositoryImpl(
         return try {
             val response = api.getMangaList(
                 limit = limit,
-                offset = offset
+                offset = offset,
+                availableTranslatedLanguages = listOf("en")
             )
 
             val mangaList = response.data.mapNotNull { mangaDto ->
@@ -41,7 +42,7 @@ class MangaRepositoryImpl(
 
             Result.success(mangaList)
         } catch (e: Exception) {
-//            Log.e(TAG, "Error fetching manga list", e)
+            Log.e(TAG, "Error fetching manga list", e)
             Result.failure(e)
         }
     }
@@ -79,7 +80,7 @@ class MangaRepositoryImpl(
 
             Result.success(mangaDetails)
         } catch (e: Exception){
-//            Log.e(TAG, "Error fetching manga detail for ID: $mangaId", e)
+            Log.e(TAG, "Error fetching manga detail for ID: $mangaId", e)
             Result.failure(e)
         }
     }
@@ -106,7 +107,7 @@ class MangaRepositoryImpl(
 
             Result.success(chapters)
         } catch (e: Exception) {
-//            Log.e(TAG, "Error fetching chapters for manga ID: $mangaId", e)
+            Log.e(TAG, "Error fetching chapters for manga ID: $mangaId", e)
             Result.failure(e)
         }
     }
@@ -127,7 +128,7 @@ class MangaRepositoryImpl(
 
             Result.success(chapterPages)
         } catch (e: Exception){
-//            Log.e(TAG, "Error fetching chapter pages for ID: $chapterId", e)
+            Log.e(TAG, "Error fetching chapter pages for ID: $chapterId", e)
             Result.failure(e)
         }
     }
