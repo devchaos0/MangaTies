@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chaos.mangaties.core.component.text.AppText
@@ -58,9 +59,28 @@ fun DownloadedChaptersScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            // LazyColumn is always in the box
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (!uiState.isLoading) {
+                    items(uiState.chapters) { chapter ->
+                        DownloadedChapterItem(
+                            chapter = chapter,
+                            onClick = { onChapterClick(chapter) }
+                        )
+                    }
+                }
+            }
+
+            // Show Loading Indicator on top using zIndex if loading
             if (uiState.isLoading) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(1f),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -75,19 +95,6 @@ fun DownloadedChaptersScreen(
                         variant = TextState.BodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.chapters) { chapter ->
-                        DownloadedChapterItem(
-                            chapter = chapter,
-                            onClick = { onChapterClick(chapter) }
-                        )
-                    }
                 }
             }
         }

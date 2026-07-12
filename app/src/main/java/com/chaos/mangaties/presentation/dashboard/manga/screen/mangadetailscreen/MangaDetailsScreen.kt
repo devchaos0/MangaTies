@@ -62,11 +62,6 @@ fun MangaDetailsScreen(
                                 "Error loading manga details",
                                 color = MaterialTheme.colorScheme.error
                             )
-                            AppText(
-                                text = uiState.error!!,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(16.dp)
-                            )
                             AppButton(
                                 "Retry",
                                 onClick = { viewModel.loadMangaDetails(mangaId) }

@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.platform.LocalContext
 import com.chaos.mangaties.presentation.dashboard.manga.component.mangadowload.DownloadChapterItem
-import com.chaos.mangaties.presentation.dashboard.manga.component.mangadowload.DownloadProgressOverlay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +37,6 @@ fun DownloadChaptersScreen(
 
     LaunchedEffect(uiState.isDownloading) {
         if (!uiState.isDownloading && uiState.downloadProgress >= 1f && uiState.selectedChapters.isEmpty()) {
-            // Download completed, show success message
             Toast.makeText(context, "Download completed!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -91,7 +89,8 @@ fun DownloadChaptersScreen(
                     ){
                         AppText(
                             text = "${uiState.selectedChapters.size} chapters selected",
-                            variant = TextState.BodyMedium
+                            variant = TextState.BodyMedium,
+                            color = MaterialTheme.colorScheme.primary
                         )
                         AppButton(
                             text = if (uiState.isDownloading) "Downloading..." else "Download (${uiState.selectedChapters.size})",
@@ -109,12 +108,6 @@ fun DownloadChaptersScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ){
-            if (uiState.isDownloading){
-                DownloadProgressOverlay(
-                    progress = uiState.downloadProgress,
-                    currentChapter = uiState.currentDownloadingChapter
-                )
-            }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -126,8 +119,9 @@ fun DownloadChaptersScreen(
                         chapter = status.chapter,
                         isSelected = status.isSelected,
                         isDownloaded = status.isDownloaded,
+                        isDownloading = uiState.isDownloading && status.chapter.chapter == uiState.currentDownloadingChapter,
+                        progress = if (status.chapter.chapter == uiState.currentDownloadingChapter) uiState.downloadProgress else 0f,
                         onToggle = { viewModel.toggleChapterSelection(status.chapter.id) }
-
                     )
                 }
             }
@@ -135,7 +129,3 @@ fun DownloadChaptersScreen(
     }
 
 }
-
-
-
-
