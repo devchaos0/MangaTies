@@ -102,6 +102,7 @@ class DownloadRepositoryImpl @Inject constructor(
 
                                     val pages = chapterDir.listFiles()
                                         ?.filter { it.name != "metadata.json" }
+                                        ?.sortedBy { it.name }
                                         ?.map { it.absolutePath }
                                         ?: emptyList()
 
@@ -176,7 +177,7 @@ class DownloadRepositoryImpl @Inject constructor(
             coroutineScope {
                 pageUrls.mapIndexed { index, imageUrl ->
                     async {
-                        val fileName = imageUrl.substringAfterLast("/")
+                        val fileName = "${index.toString().padStart(4, '0')}_${imageUrl.substringAfterLast("/")}"
                         val file = File(chapterDir, fileName)
 
                         if (!file.exists()) {
