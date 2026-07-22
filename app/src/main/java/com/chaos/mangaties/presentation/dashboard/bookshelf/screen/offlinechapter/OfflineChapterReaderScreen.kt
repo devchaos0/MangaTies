@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,6 +26,7 @@ import coil.size.Size
 import com.chaos.mangaties.core.component.text.AppText
 import com.chaos.mangaties.core.component.text.TextState
 import com.chaos.mangaties.domain.model.manga.manga.DownloadedChapter
+import com.chaos.mangaties.navgraph.MangaDataHolder
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +45,8 @@ fun OfflineChapterReaderScreen(
         viewModel.loadChapterPages(chapter)
     }
 
-    val currentIndex = allChapters.indexOfFirst { it.chapterId == chapter.chapterId }
+    // Use the index from MangaDataHolder to keep track of progress
+    val currentIndex = MangaDataHolder.currentChapterIndex
 
     Column(
         modifier = Modifier
@@ -81,11 +82,9 @@ fun OfflineChapterReaderScreen(
                     CircularProgressIndicator(color = Color.White)
                 }
             } else if (uiState.pages.isNotEmpty()) {
-                val listState = rememberLazyListState()
                 LazyColumn(
-                    state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    contentPadding = PaddingValues(bottom = 80.dp) // Leave space for bottom bar
                 ) {
                     items(uiState.pages) { pagePath ->
                         OfflinePageImage(imagePath = pagePath)
@@ -105,18 +104,19 @@ fun OfflineChapterReaderScreen(
             ) {
                 Button(
                     onClick = {
-                        if (currentIndex > 0) {
-                            onChapterChange(allChapters[currentIndex - 1])
+                        val prev = MangaDataHolder.getPreviousChapter()
+                        if (prev != null) {
+                            onChapterChange(prev)
                         }
                     },
                     enabled = currentIndex > 0,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (currentIndex > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = if (currentIndex > 0) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.secondaryContainer
                     )
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous")
                     Spacer(modifier = Modifier.width(4.dp))
-                    AppText("Previous", color = Color.White)
+                    AppText("Previous", variant = TextState.Label, color = MaterialTheme.colorScheme.primary)
                 }
 
                 AppText(
@@ -127,16 +127,17 @@ fun OfflineChapterReaderScreen(
 
                 Button(
                     onClick = {
-                        if (currentIndex < allChapters.size - 1) {
-                            onChapterChange(allChapters[currentIndex + 1])
+                        val next = MangaDataHolder.getNextChapter()
+                        if (next != null) {
+                            onChapterChange(next)
                         }
                     },
                     enabled = currentIndex < allChapters.size - 1,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (currentIndex < allChapters.size - 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = if (currentIndex < allChapters.size - 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    AppText("Next", color = Color.White)
+                    AppText("Next", color = Color.Black, variant = TextState.Label)
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next")
                 }

@@ -164,9 +164,10 @@ fun NavGraph(
                 mangaId = mangaId,
                 mangaTitle = mangaTitle,
                 onBack = { navController.popBackStack() },
-                onChapterClick = { chapter ->
+                onChapterClick = { chapter, allChapters, index ->
                     MangaDataHolder.currentChapter = chapter
-                    MangaDataHolder.downloadedChapters = listOf(chapter)
+                    MangaDataHolder.downloadedChapters = allChapters
+                    MangaDataHolder.currentChapterIndex = index
                     navController.navigate(Screen.OfflineReader.passChapterId(chapter.chapterId))
                 }
             )
@@ -188,6 +189,11 @@ fun NavGraph(
                     onBack = { navController.popBackStack() },
                     onChapterChange = { newChapter ->
                         MangaDataHolder.currentChapter = newChapter
+                        // Find index of new chapter
+                        val newIndex = allChapters.indexOfFirst { it.chapterId == newChapter.chapterId }
+                        if (newIndex != -1) {
+                            MangaDataHolder.currentChapterIndex = newIndex
+                        }
                         navController.navigate(Screen.OfflineReader.passChapterId(newChapter.chapterId)) {
                             popUpTo(Screen.OfflineReader.passChapterId(chapterId)) { inclusive = true }
                         }

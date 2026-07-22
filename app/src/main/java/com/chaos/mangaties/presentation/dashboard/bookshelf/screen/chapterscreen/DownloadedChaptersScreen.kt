@@ -25,7 +25,7 @@ fun DownloadedChaptersScreen(
     mangaId: String,
     mangaTitle: String,
     onBack: () -> Unit,
-    onChapterClick: (DownloadedChapter) -> Unit,
+    onChapterClick: (DownloadedChapter, List<DownloadedChapter>, Int) -> Unit,
     viewModel: DownloadedChaptersViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -66,10 +66,13 @@ fun DownloadedChaptersScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (!uiState.isLoading) {
-                    items(uiState.chapters) { chapter ->
+                    items(uiState.chapters.size) { index ->
+                        val chapter = uiState.chapters[index]
                         DownloadedChapterItem(
                             chapter = chapter,
-                            onClick = { onChapterClick(chapter) }
+                            onClick = {
+                                onChapterClick(chapter, uiState.chapters, index)
+                            }
                         )
                     }
                 }

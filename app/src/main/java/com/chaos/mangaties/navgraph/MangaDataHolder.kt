@@ -25,7 +25,7 @@ object MangaDataHolder {
 
     fun getPreviousChapter(): DownloadedChapter? {
         val prevIndex = currentChapterIndex - 1
-        return if (prevIndex >= 0) {
+        return if (prevIndex >= 0 && prevIndex < downloadedChapters.size) {
             currentChapterIndex = prevIndex
             downloadedChapters[prevIndex]
         } else null
