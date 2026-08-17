@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import com.chaos.mangaties.core.component.toast.*
 @Composable
 fun SignUp(
     navigateToLogin: () -> Unit,
+    onBack: () -> Unit,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val email = rememberTextFieldState()
@@ -63,6 +65,14 @@ fun SignUp(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth().align(Alignment.Center),
                             color= MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
                         )
                     }
                 },

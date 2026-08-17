@@ -1,6 +1,6 @@
 package com.chaos.mangaties.domain.usecase.auth.signup
 
-import com.chaos.mangaties.domain.model.auth.signup.SignUpValidationResult
+import com.chaos.mangaties.domain.model.auth.ValidationResult
 import com.chaos.mangaties.domain.repository.auth.signup.SignUpRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +19,7 @@ class SignUpUseCase @Inject constructor(
     ): Flow<SignUpResult> = flow{
         val validationResult = validateForm(email, password,confirmPassword)
 
-        if (validationResult is SignUpValidationResult.Error){
+        if (validationResult is ValidationResult.Error){
             emit(SignUpResult.ValidationError(validationResult.message))
             return@flow
         }

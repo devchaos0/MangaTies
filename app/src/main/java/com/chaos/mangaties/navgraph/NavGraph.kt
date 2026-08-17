@@ -62,7 +62,11 @@ fun NavGraph(
             )
         }
         composable(route = Screen.SignUp.route) {
-            SignUp(navigateToLogin = { navController.navigate(Screen.Login.route){ popUpTo(Screen.Onboarding.route){ inclusive = true } } })
+            SignUp(
+                navigateToLogin = {
+                navController.navigate(Screen.Login.route){ popUpTo(Screen.Onboarding.route){ inclusive = true } } },
+                onBack = { navController.popBackStack() }
+            )
         }
         composable(route = Screen.ForgotPassword.route) {
             ForgotPasswordScreen(

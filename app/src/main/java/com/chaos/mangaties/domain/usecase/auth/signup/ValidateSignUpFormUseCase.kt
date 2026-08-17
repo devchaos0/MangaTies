@@ -1,27 +1,31 @@
 package com.chaos.mangaties.domain.usecase.auth.signup
 
+import com.chaos.mangaties.domain.model.auth.ValidationResult
 import com.chaos.mangaties.domain.model.auth.signup.SignUpValidationResult
+import com.chaos.mangaties.domain.usecase.auth.ValidateConfirmPasswordUseCase
+import com.chaos.mangaties.domain.usecase.auth.ValidateEmailUseCase
+import com.chaos.mangaties.domain.usecase.auth.ValidatePasswordUseCase
 import javax.inject.Inject
 
 class ValidateSignUpFormUseCase @Inject constructor(
-    private val validateEmail: SignUpValidateEmailUseCase,
-    private val validatePassword: SignUpValidatePasswordUseCase,
-    private val validateConfirmPassword: SignUpValidateConfirmPasswordUseCase
+    private val validateEmail: ValidateEmailUseCase,
+    private val validatePassword: ValidatePasswordUseCase,
+    private val validateConfirmPassword: ValidateConfirmPasswordUseCase
 ) {
     operator fun invoke(
         email: String,
         password:String,
         confirmPassword:String
-    ) : SignUpValidationResult{
+    ) : ValidationResult{
         val emailValidation = validateEmail(email)
-        if (emailValidation is SignUpValidationResult.Error) return emailValidation
+        if (emailValidation is ValidationResult.Error) return emailValidation
 
         val passwordValidation = validatePassword(password)
-        if (passwordValidation is SignUpValidationResult.Error) return passwordValidation
+        if (passwordValidation is ValidationResult.Error) return passwordValidation
 
         val confirmPasswordValidation = validateConfirmPassword(password, confirmPassword)
-        if (confirmPasswordValidation is SignUpValidationResult.Error) return confirmPasswordValidation
+        if (confirmPasswordValidation is ValidationResult.Error) return confirmPasswordValidation
 
-        return SignUpValidationResult.Success
+        return ValidationResult.Success
     }
 }

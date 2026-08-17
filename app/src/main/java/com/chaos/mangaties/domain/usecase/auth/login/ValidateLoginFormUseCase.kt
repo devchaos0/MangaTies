@@ -1,24 +1,26 @@
 package com.chaos.mangaties.domain.usecase.auth.login
 
-import com.chaos.mangaties.domain.model.auth.login.LoginValidationResult
+import com.chaos.mangaties.domain.model.auth.ValidationResult
+import com.chaos.mangaties.domain.usecase.auth.ValidateEmailUseCase
+import com.chaos.mangaties.domain.usecase.auth.ValidatePasswordUseCase
 import javax.inject.Inject
 
 class ValidateLoginFormUseCase @Inject constructor(
-    private val validateEmailUseCase: LoginValidateEmailUseCase,
-    private val validatePasswordUseCase: LoginValidatePasswordUseCase
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    private val validatePasswordUseCase: ValidatePasswordUseCase
 ){
     operator fun invoke(
         email: String,
         password: String
-    ) : LoginValidationResult{
+    ) : ValidationResult{
 
         val emailValidation = validateEmailUseCase(email)
-        if (emailValidation is LoginValidationResult.Error) return emailValidation
+        if (emailValidation is ValidationResult.Error) return emailValidation
 
         val passwordValidation = validatePasswordUseCase(password)
-        if (passwordValidation is LoginValidationResult.Error) return passwordValidation
+        if (passwordValidation is ValidationResult.Error) return passwordValidation
 
-        return LoginValidationResult.Success
+        return ValidationResult.Success
 
     }
 }
