@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,30 +33,24 @@ fun ForgotPasswordScreen(
     viewModel: ForgotPasswordViewModel = hiltViewModel()
 ) {
 
+    val email = rememberTextFieldState()
+    val emailValue = email.text.toString()
+
     val uiState by viewModel.uiState.collectAsState()
-    val emailState = rememberTextFieldState()
-    val context = LocalContext.current
     val toastController = LocalToastController.current
 
-    LaunchedEffect(uiState.isSuccess) {
-        if (uiState.isSuccess){
-            toastController.show(
-                message = "Password reset email sent successfully",
-                type = ToastType.Success,
-                title = "Success"
-            )
-            onSuccess()
-        }
-    }
-
-    LaunchedEffect(uiState.error) {
-        if (uiState.error != null){
-            toastController.show(
-                message = uiState.error ?: "An error occurred",
-                type = ToastType.Error,
-                title = "Error"
-            )
-        }
+    LaunchedEffect(Unit) {
+       viewModel.events.collect { event ->
+           when(event){
+               is ForgotPasswordEvent.ShowToast ->{
+                   toastController.show(
+                       message = event.message,
+                       type = if (event.isError) ToastType.Error else ToastType.Success,
+                       title = if (event.isError) "Error" else "Success"
+                   )
+               }
+           }
+       }
     }
 
     Scaffold(
@@ -129,37 +122,23 @@ fun ForgotPasswordScreen(
 
                 // Email Input
                 AppTextField(
-                    state = emailState,
+                     email,
                     label = "Email Address",
                     placeholder = "Enter your email",
                     leadingIcon = Icons.Default.Email,
                 )
 
-                if (uiState.error != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    AppText(
-                        text = uiState.error ?: "",
-                        variant = TextState.Label,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
-                AppButton(
-                    text = if (uiState.isLoading) "Sending..." else "Reset Password",
-                    onClick = {
-                        val email = emailState.text.toString().trim()
-                        if (email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                            viewModel.sendPasswordResetEmail(email)
-                        } else {
-                            viewModel.setError("Please enter a valid email address")
-                        }
-                    },
-                    type = ButtonType.Primary,
-                    enabled = !uiState.isLoading,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box {
+                    AppButton(
+                        text = if (uiState.isLoading) "Sending..." else "Reset Password",
+                        onClick = { viewModel.sendPasswordResetEmail(emailValue) },
+                        type = ButtonType.Primary,
+                        enabled = !uiState.isLoading,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

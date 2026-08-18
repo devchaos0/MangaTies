@@ -1,7 +1,6 @@
 package com.chaos.mangaties.domain.usecase.auth.signup
 
 import com.chaos.mangaties.domain.model.auth.ValidationResult
-import com.chaos.mangaties.domain.model.auth.signup.SignUpValidationResult
 import com.chaos.mangaties.domain.usecase.auth.ValidateConfirmPasswordUseCase
 import com.chaos.mangaties.domain.usecase.auth.ValidateEmailUseCase
 import com.chaos.mangaties.domain.usecase.auth.ValidatePasswordUseCase
