@@ -67,4 +67,13 @@ class MangaHomeListViewModel @Inject constructor(
     fun clearError(){
         _uiState.value = _uiState.value.copy(error = null)
     }
+
+    fun refresh(){
+        currentOffset = 0
+        canLoadMore = true
+
+        _uiState.value = _uiState.value.copy(mangaList = emptyList(), error = null)
+
+        loadMoreManga()
+    }
 }

@@ -3,6 +3,7 @@ package com.chaos.mangaties.presentation.dashboard.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.unit.dp
@@ -41,9 +42,10 @@ fun HomeScreen(
     }
 
     Column() {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
+        PullToRefreshBox(
+            modifier = Modifier.fillMaxSize(),
+            isRefreshing = uiState.isLoading,
+            onRefresh = { viewModel.refresh() }
         ){
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),

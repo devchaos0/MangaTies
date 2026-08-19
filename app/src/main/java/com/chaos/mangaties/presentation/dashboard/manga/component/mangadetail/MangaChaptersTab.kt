@@ -119,7 +119,7 @@ fun MangaChaptersTab(
                         }
                     }
                 }
-                items(sortedChapters){ chapter ->
+                items(items = sortedChapters, key = { it.id }) { chapter ->
                     ChapterItem(
                         chapter = chapter,
                         onClick = { onChapterClick(chapter) }
